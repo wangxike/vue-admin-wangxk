@@ -15,8 +15,8 @@
             <el-table-column prop="categoryId" label="所属栏目"></el-table-column>
             <el-table-column label="操作">
                 <template v-slot="slot">
-                    <a href="" @click.prevent="toDeleteHandler">删除</a>
-                    <a href="" @click.prevent="toUpdataHandler">修改</a>
+                    <a href="" @click.prevent="toDeleteHandler(slot.row.id)">删除</a>
+                    <a href="" @click.prevent="toUpdataHandler(slot.row)">修改</a>
                 </template>
             </el-table-column>
         </el-table>
@@ -40,7 +40,7 @@
                             v-for="item in options"
                             :key="item.value"
                             :label="item.label"
-                            :value="item.label">
+                            :value="item.value">
                         </el-option>
                     </el-select>
                 </el-form-item>
@@ -108,24 +108,34 @@ export default {
             
         },
         toAddHandler(){
+            this.form={
+
+            }
             this.visible=true;
         },
         closeModelHandler(){
             this.visible=false;
         },
-        toUpdataHandler(){
+        toUpdataHandler(row){
             this.title="修改栏目信息"
             this.visible=true;
+            this.form=row;
         },
-        toDeleteHandler(){
+        toDeleteHandler(id){
             this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                this.$message({
-                    type: 'success',
-                    message: '删除成功!'
+                let url = "http://localhost:6677/product/deleteById?id="+id;
+                request.get(url).then((response)=>{
+                    //刷新数据
+                    this.loadData();
+                    //提示结果
+                    this.$message({
+                        type: 'success',
+                        message: response.message
+                    });
                 })
             })
         }
@@ -134,7 +144,7 @@ export default {
         return{
             fileList: [],
             title:"录入栏目信息",
-            visible:true,
+            visible:false,
             products:[],
             form:{},
             options: [{ value: '123', label: '9139'}, 
